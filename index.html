@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📰 分辨真假資訊 — 學階2 課題1</title>
+  <style>
+    :root {
+      --primary: #4A90D9;
+      --success: #52C41A;
+      --danger: #FF4D4F;
+      --bg: #F0F4FF;
+      --card-bg: #FFFFFF;
+      --text: #333;
+      --shadow: 0 4px 16px rgba(74,144,217,0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 1rem;
+      color: #666;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+    /* Progress Bar */
+    .progress-wrap {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+    .progress-label {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .progress-bar {
+      height: 12px;
+      background: #E8F0FE;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #7FBFFFF);
+      border-radius: 6px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+    /* News Card */
+    .card-container {
+      perspective: 1000px;
+      width: 100%;
+      max-width: 600px;
+      min-height: 340px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .news-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.6s;
+      position: relative;
+    }
+    .news-card.flip {
+      transform: rotateY(180deg);
+    }
+    .news-card.flip .card-front { opacity: 0; pointer-events: none; }
+    .news-card.flip .card-back  { opacity: 1; pointer-events: auto; }
+    .card-front, .card-back {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      transition: opacity 0.3s;
+    }
+    .card-front { opacity: 1; }
+    .card-back  { opacity: 0; background: var(--card-bg); }
+    .news-icon {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+    }
+    .news-source {
+      font-size: 0.8rem;
+      color: #999;
+      margin-bottom: 8px;
+    }
+    .news-headline {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .news-content {
+      font-size: 0.95rem;
+      color: #555;
+      text-align: center;
+      line-height: 1.7;
+    }
+    .tag {
+      padding: 4px 14px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .tag-true  { background: #E6F7D9; color: var(--success); }
+    .tag-fake  { background: #FFF1F0; color: var(--danger); }
+    .tag-unknown { background: #FFF7E6; color: #FA8C16; }
+    .verdict-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+    }
+    .verdict-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .verdict-detail {
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+      line-height: 1.6;
+      background: #F9FBFF;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+    }
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .btn:active { transform: translateY(0); }
+    .btn-true {
+      background: var(--success);
+      color: #fff;
+    }
+    .btn-fake {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-next {
+      background: var(--primary);
+      color: #fff;
+      display: none;
+    }
+    .btn-next.show { display: flex; align-items: center; gap: 8px; }
+    .btn-restart {
+      background: #fff;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    /* Feedback Flash */
+    .feedback-flash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feedback-flash.correct {
+      background: rgba(82,196,26,0.25);
+      opacity: 1;
+      animation: flashFade 0.8s forwards;
+    }
+    .feedback-flash.wrong {
+      background: rgba(255,77,79,0.25);
+      opacity: 1;
+      animation: flashFade 0.8s forwards;
+    }
+    @keyframes flashFade {
+      0% { opacity: 1; }
+      70% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .feedback-flash .flash-text {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    /* Score */
+    .score-panel {
+      display: flex;
+      gap: 24px;
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .score-panel span { font-weight: 700; }
+    .score-true span { color: var(--success); }
+    .score-fake span { color: var(--danger); }
+    /* Hint */
+    .hint-box {
+      background: #FFF7E6;
+      border-left: 4px solid #FA8C16;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #7A5011;
+      line-height: 1.5;
+      max-width: 600px;
+      display: none;
+    }
+    /* Complete Screen */
+    .complete-screen {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .complete-screen .trophy { font-size: 5rem; margin-bottom: 16px; }
+    .complete-screen h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 8px; }
+    .complete-screen p { color: #666; margin-bottom: 20px; }
+    .complete-screen .stars { font-size: 2.5rem; margin-bottom: 20px; }
+    .complete-screen .result-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 24px;
+    }
+    .complete-screen .result-item { text-align: center; }
+    .complete-screen .result-item .num {
+      font-size: 2rem;
+      font-weight: 900;
+    }
+    .complete-screen .result-item .label {
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .result-item.correct .num { color: var(--success); }
+    .result-item.wrong .num { color: var(--danger); }
+
+    /* Start Screen */
+    .start-screen {
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 500px;
+    }
+    .start-screen .emoji-header { font-size: 4.5rem; margin-bottom: 16px; }
+    .start-screen h2 { font-size: 1.6rem; color: var(--primary); margin-bottom: 12px; }
+    .start-screen p { color: #666; line-height: 1.7; margin-bottom: 24px; font-size: 0.95rem; }
+    .start-screen .btn-start {
+      background: var(--primary);
+      color: #fff;
+      padding: 16px 48px;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .start-screen .btn-start:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(74,144,217,0.3);
+    }
+    .learning-goals {
+      background: #F0F4FF;
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+    .learning-goals h3 { font-size: 0.9rem; color: var(--primary); margin-bottom: 8px; }
+    .learning-goals ul { list-style: none; }
+    .learning-goals li {
+      font-size: 0.88rem;
+      color: #555;
+      padding: 4px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+    .learning-goals li::before {
+      content: '✅';
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="badge">📚 學階2 · 小四至小六</div>
+  <h1>分辨真假資訊</h1>
+  <p>課題1 — Learn to spot real vs. fake news!</p>
+</div>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span>進度</span>
+    <span id="progress-text">0 / 5</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+</div>
+
+<!-- Main Container -->
+<div id="game-container">
+  <!-- Start Screen -->
+  <div class="start-screen" id="start-screen">
+    <div class="emoji-header">🔍📰</div>
+    <h2>你準備好做小小 fact-checker 了嗎？</h2>
+    <div class="learning-goals">
+      <h3>📖 學習目標</h3>
+      <ul>
+        <li>認識什麼是「假資訊」</li>
+        <li>學會3個分辨真假資訊的方法</li>
+        <li>养成查證消息的習慣</li>
+      </ul>
+    </div>
+    <p>系統會展示 5 則新聞，你需要判斷：<br>這是真新聞 🟢 還是假新聞 🔴？</p>
+    <button class="btn-start" id="btn-start">開始挑戰 🚀</button>
+  </div>
+
+  <!-- Question Screen -->
+  <div id="question-screen" style="display:none; width:100%; max-width:600px;">
+    <div class="card-container">
+      <div class="news-card" id="news-card">
+        <div class="card-front">
+          <div class="news-icon" id="news-icon">📰</div>
+          <div class="news-source" id="news-source"></div>
+          <div class="tag tag-unknown" id="tag-question">❓ 等待你判斷</div>
+          <div class="news-headline" id="news-headline"></div>
+          <div class="news-content" id="news-content"></div>
+        </div>
+        <div class="card-back">
+          <div class="verdict-icon" id="verdict-icon"></div>
+          <div class="tag" id="verdict-tag"></div>
+          <div class="verdict-text" id="verdict-text"></div>
+          <div class="verdict-detail" id="verdict-detail"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-group" id="btn-group">
+      <button class="btn btn-true" id="btn-select-true">✅ 這是真的！</button>
+      <button class="btn btn-fake" id="btn-select-fake">❌ 這是假的！</button>
+    </div>
+    <button class="btn btn-next" id="btn-next">
+      下一題 ➡️
+    </button>
+
+    <div class="hint-box" id="hint-box"></div>
+
+    <div class="score-panel">
+      <div class="score-true">答對次數：<span id="score-correct">0</span></div>
+      <div class="score-fake">答錯次數：<span id="score-wrong">0</span></div>
+    </document>
+  </div>
+
+  <!-- Complete Screen -->
+  <div id="complete-screen" style="display:none; width:100%; max-width:600px;">
+    <div class="complete-screen">
+      <div class="trophy">🏆</div>
+      <h2 id="complete-title">太棒了！你是 Fact-Checker！</h2>
+      <div class="stars" id="stars"></div>
+      <div class="result-row">
+        <div class="result-item correct">
+          <div class="num" id="final-correct">0</div>
+          <div class="label">答對</div>
+        </div>
+        <div class="result-item wrong">
+          <div class="num" id="final-wrong">0</div>
+          <div class="label">答錯</div>
+        </div>
+      </div>
+      <p id="complete-msg"></p>
+      <button class="btn btn-restart" id="btn-restart">再玩一次 🔄</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Flash -->
+<div class="feedback-flash" id="feedback-flash">
+  <div class="flash-text" id="flash-text"></div>
+</div>
+
+<script>
+// ─── Dataset ───────────────────────────────────────────
+const QUESTIONS = [
+  {
+    icon: '🍎',
+    source: '健康生活網',
+    headline: '研究發現：每天食三個蘋果可以治療所有癌症！',
+    content: '根據最新研究，科學家宣稱三個蘋果含有的抗氧化劑可以消除人體內所有癌細胞。',
+    isTrue: false,
+    tag: '健康謠言',
+    reason: '蘋果雖然有益健康，但沒有任何研究證明食蘋果可以治療癌症。',
+    hint: '注意！聲稱「可以治療所有癌症」的食物，通常都是假資訊！'
+  },
+  {
+    icon: '🌍',
+    source: 'TV新聞網',
+    headline: '香港天文台：明日掛八號風球，注意安全！',
+    content: '香港天文台宣佈明日將懸掛八號熱帶氣旋警告信號，呼籲市民做好防風措施。',
+    isTrue: true,
+    tag: '天文台公告',
+    reason: '天文台是香港官方氣象機構，有相關公告。',
+    hint: '來自政府官方機構及知名媒體的新聞，通常較為可靠。'
+  },
+  {
+    icon: '🐶',
+    source: '謎語樂園',
+    headline: '狗仔注射疫苗後會變成喪屍？',
+    content: '互聯網流傳一段影片，顯示狗隻注射疫苗後行為怪異，毛髮脫落，懷疑疫苗含有有害物質。',
+    isTrue: false,
+    tag: '動物謠言',
+    reason: '影片是造假，疫苗是安全的，動物的異常行為另有原因。',
+    hint: '沒有權威來源證實的「震驚」影片，多數是假的！'
+  },
+  {
+    icon: '💰',
+    source: '政府新聞網',
+    headline: '政府宣佈下月起資助中小學生免費課外活動',
+    content: '教育局今日正式宣佈，由下月起，政府將資助全港中小學生参加指定課外活動，費用全免。',
+    isTrue: true,
+    tag: '官方公告',
+    reason: '政府新聞網是官方資訊發布渠道，真實可信。',
+    hint: '政府網站或官方臉書專頁發布的消息，真實性較高。'
+  },
+  {
+    icon: '🔋',
+    source: '科技新知台',
+    headline: '科學家發明「永動機」：從此人類不再需要電力！',
+    content: '外國某大學宣稱已研製出可自行運轉的發電機，完全不需要外部能源輸入。',
+    isTrue: false,
+    tag: '科技謠言',
+    reason: '永動機違反熱力學定律，不可能存在！',
+    hint: '發現違反科學定律的「劃時代發明」聲明，要特別小心！'
+  }
+];
+
+// ─── State ─────────────────────────────────────────────
+let currentIndex = 0;
+let scoreCorrect = 0;
+let scoreWrong = 0;
+let answered = false;
+
+// ─── DOM Elements ─────────────────────────────────────
+const startScreen   = document.getElementById('start-screen');
+const questionScreen = document.getElementById('question-screen');
+const completeScreen = document.getElementById('complete-screen');
+const newsCard       = document.getElementById('news-card');
+const btnGroup       = document.getElementById('btn-group');
+const btnNext        = document.getElementById('btn-next');
+const hintBox        = document.getElementById('hint-box');
+const progressFill   = document.getElementById('progress-fill');
+const progressText   = document.getElementById('progress-text');
+const feedbackFlash  = document.getElementById('feedback-flash');
+const flashText      = document.getElementById('flash-text');
+
+// ─── Speech ────────────────────────────────────────────
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'zh-Hant';
+  utter.rate = 0.95;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+// ─── Render Question ───────────────────────────────────
+function renderQuestion() {
+  const q = QUESTIONS[currentIndex];
+  document.getElementById('news-icon').textContent = q.icon;
+  document.getElementById('news-source').textContent = q.source;
+  document.getElementById('tag-question').textContent = '❓ 等待你判斷';
+  document.getElementById('tag-question').className = 'tag tag-unknown';
+  document.getElementById('news-headline').textContent = q.headline;
+  document.getElementById('news-content').textContent = q.content;
+  document.getElementById('verdict-icon').textContent = q.isTrue ? '✅' : '❌';
+  document.getElementById('verdict-tag').textContent = q.isTrue ? '✅ 真新聞' : '❌ 假資訊';
+  document.getElementById('verdict-tag').className = 'tag ' + (q.isTrue ? 'tag-true' : 'tag-fake');
+  document.getElementById('verdict-text').textContent = q.isTrue
+    ? '這是真的新聞！'
+    : '這是假資訊！';
+  document.getElementById('verdict-detail').textContent = q.reason;
+  hintBox.textContent = q.hint;
+  hintBox.style.display = 'none';
+
+  // Reset card
+  newsCard.classList.remove('flip');
+  btnGroup.style.display = 'flex';
+  btnNext.classList.remove('show');
+
+  // Progress
+  progressFill.style.width = (currentIndex / QUESTIONS.length * 100) + '%';
+  progressText.textContent = currentIndex + ' / ' + QUESTIONS.length;
+
+  answered = false;
+}
+
+// ─── Handle Answer ────────────────────────────────────
+function handleAnswer(userChoice) {
+  if (answered) return;
+  answered = true;
+
+  const q = QUESTIONS[currentIndex];
+  const correct = (userChoice === 'true') === q.isTrue;
+
+  // Flash
+  feedbackFlash.className = 'feedback-flash ' + (correct ? 'correct' : 'wrong');
+  flashText.textContent = correct ? '🎉 答啱！' : '😯 答錯了！';
+  setTimeout(() => { feedbackFlash.className = 'feedback-flash'; }, 850);
+
+  // Speech
+  if (correct) {
+    speak('答啱！你好叻！');
+    scoreCorrect++;
+    document.getElementById('score-correct').textContent = scoreCorrect;
+  } else {
+    speak('答錯了，唔緊要，再試過！');
+    scoreWrong++;
+    document.getElementById('score-wrong').textContent = scoreWrong;
+  }
+
+  // Flip card
+  newsCard.classList.add('flip');
+
+  // Show hint
+  hintBox.style.display = 'block';
+
+  // Toggle buttons
+  btnGroup.style.display = 'none';
+
+  const isLast = currentIndex >= QUESTIONS.length - 1;
+  if (isLast) {
+    btnNext.textContent = '睇結果 🏆';
+  } else {
+    btnNext.textContent = '下一題 ➡️';
+  }
+  btnNext.classList.add('show');
+
+  // Update progress to current
+  progressFill.style.width = ((currentIndex + 1) / QUESTIONS.length * 100) + '%';
+  progressText.textContent = (currentIndex + 1) + ' / ' + QUESTIONS.length;
+}
+
+// ─── Show Complete ─────────────────────────────────────
+function showComplete() {
+  questionScreen.style.display = 'none';
+  completeScreen.style.display = 'block';
+
+  const pct = scoreCorrect / QUESTIONS.length;
+  let stars = '';
+  if (pct == 1) stars = '⭐⭐⭐⭐⭐';
+  else if (pct >= 0.8) stars = '⭐⭐⭐⭐';
+  else if (pct >= 0.6) stars = '⭐⭐⭐';
+  else if (pct >= 0.4) stars = '⭐⭐';
+  else stars = '⭐';
+
+  document.getElementById('stars').textContent = stars;
+  document.getElementById('final-correct').textContent = scoreCorrect;
+  document.getElementById('final-wrong').textContent = scoreWrong;
+
+  if (pct == 1) {
+    document.getElementById('complete-title').textContent = '完美！你係終極 Fact-Checker！🎉';
+    document.getElementById('complete-msg').textContent = '你對所有資訊都分辨得非常清楚！';
+    speak('太捧了，你是終極事實審查員！');
+  } else if (pct >= 0.6) {
+    document.getElementById('complete-title').textContent = '做得好！繼續努力！💪';
+    document.getElementById('complete-msg').textContent = '記住：要查證消息，先確認，再分享！';
+    speak('做得好！繼續努力！');
+  } else {
+    document.getElementById('complete-title').textContent = '再試多一次，你可以的！📰';
+    document.getElementById('complete-msg').textContent = '記住：留意消息來源、有沒有研究證據、係咪太震驚！';
+    speak('再試多一次，你可以的！');
+  }
+}
+
+// ─── Event Listeners ───────────────────────────────────
+document.getElementById('btn-start').addEventListener('click', () => {
+  startScreen.style.display = 'none';
+  questionScreen.style.display = 'block';
+  currentIndex = 0;
+  scoreCorrect = 0;
+  scoreWrong = 0;
+  document.getElementById('score-correct').textContent = '0';
+  document.getElementById('score-wrong').textContent = '0';
+  renderQuestion();
+});
+
+document.getElementById('btn-select-true').addEventListener('click', () => handleAnswer('true'));
+document.getElementById('btn-select-fake').addEventListener('click', () => handleAnswer('false'));
+
+btnNext.addEventListener('click', () => {
+  const isLast = currentIndex >= QUESTIONS.length - 1;
+  if (isLast) {
+    showComplete();
+  } else {
+    currentIndex++;
+    renderQuestion();
+  }
+});
+
+document.getElementById('btn-restart').addEventListener('click', () => {
+  completeScreen.style.display = 'none';
+  startScreen.style.display = 'block';
+  progressFill.style.width = '0%';
+  progressText.textContent = '0 / 5';
+});
+</script>
+</body>
+</html>
