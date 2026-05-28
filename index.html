@@ -93,15 +93,20 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       transition: transform 0.6s;
       position: relative;
+      transform-style: preserve-3d;
     }
     .news-card.flip {
       transform: rotateY(180deg);
     }
-    .news-card.flip .card-front { opacity: 0; pointer-events: none; }
-    .news-card.flip .card-back  { opacity: 1; pointer-events: auto; }
     .card-front, .card-back {
+      backface-visibility: hidden;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+    }
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       padding: 28px 24px;
@@ -340,6 +345,145 @@
       position: absolute;
       left: 0;
     }
+    /* Selection Screen */
+    .selection-screen {
+      text-align: center;
+      padding: 30px 20px;
+      max-width: 600px;
+      width: 100%;
+    }
+    .selection-screen h2 {
+      font-size: 1.4rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .selection-screen > p {
+      color: #666;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stage-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 16px 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .stage-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .stage-btn .stage-num {
+      font-size: 1.5rem;
+      font-weight: 900;
+      display: block;
+    }
+    .stage-btn .stage-desc {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 4px;
+    }
+    .stage-btn:hover .stage-desc { color: #ddd; }
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .topic-btn {
+      background: var(--card-bg);
+      border: 2px solid #E8F0FE;
+      border-radius: 10px;
+      padding: 12px 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .topic-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: #F0F4FF;
+      transform: translateY(-1px);
+    }
+    .topic-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .topic-btn .topic-num {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: block;
+    }
+    .topic-btn .topic-tag {
+      font-size: 0.7rem;
+      color: #888;
+      margin-top: 2px;
+    }
+    .btn-confirm {
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 40px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: none;
+    }
+    .btn-confirm.show { display: inline-block; }
+    .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(74,144,217,0.3); }
+    /* Clue Panel */
+    .clue-panel {
+      background: linear-gradient(135deg, #FFF7E6 0%, #FFF3CC 100%);
+      border: 2px solid #FA8C16;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin: 12px 0;
+      text-align: left;
+      display: none;
+      width: 100%;
+    }
+    .clue-panel.show { display: block; }
+    .clue-panel .clue-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #7A3E00;
+      margin-bottom: 6px;
+    }
+    .clue-panel .clue-text {
+      font-size: 0.85rem;
+      color: #5C2C00;
+      line-height: 1.5;
+    }
+    /* Investigation Button */
+    .btn-investigate {
+      background: #FA8C16;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      margin-top: 8px;
+    }
+    .btn-investigate:hover {
+      background: #E67700;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(250,140,22,0.3);
+    }
   </style>
 </head>
 <body>
@@ -380,6 +524,15 @@
     <button class="btn-start" id="btn-start">開始挑戰 🚀</button>
   </div>
 
+  <!-- Selection Screen -->
+  <div class="selection-screen" id="selection-screen" style="display:none;">
+    <h2 id="selection-title">請先選擇學階</h2>
+    <p id="selection-subtitle">完成選擇後，系統會根據你的程度提供合適的課題</p>
+    <div class="stage-grid" id="stage-grid"></div>
+    <div class="topic-grid" id="topic-grid" style="display:none;"></div>
+    <button class="btn-confirm" id="btn-confirm">確認並開始 ✅</button>
+  </div>
+
   <!-- Question Screen -->
   <div id="question-screen" style="display:none; width:100%; max-width:600px;">
     <div class="card-container">
@@ -390,6 +543,11 @@
           <div class="tag tag-unknown" id="tag-question">❓ 等待你判斷</div>
           <div class="news-headline" id="news-headline"></div>
           <div class="news-content" id="news-content"></div>
+          <button class="btn-investigate" id="btn-investigate">🔍 先搵線索</button>
+          <div class="clue-panel" id="clue-panel">
+            <div class="clue-title" id="clue-title"></div>
+            <div class="clue-text" id="clue-text"></div>
+          </div>
         </div>
         <div class="card-back">
           <div class="verdict-icon" id="verdict-icon"></div>
@@ -400,7 +558,7 @@
       </div>
     </div>
 
-    <div class="btn-group" id="btn-group">
+    <div class="btn-group" id="btn-group" style="display:none;">
       <button class="btn btn-true" id="btn-select-true">✅ 這是真的！</button>
       <button class="btn btn-fake" id="btn-select-fake">❌ 這是假的！</button>
     </div>
@@ -454,7 +612,8 @@ const QUESTIONS = [
     isTrue: false,
     tag: '健康謠言',
     reason: '蘋果雖然有益健康，但沒有任何研究證明食蘋果可以治療癌症。',
-    hint: '注意！聲稱「可以治療所有癌症」的食物，通常都是假資訊！'
+    hint: '注意！聲稱「可以治療所有癌症」的食物，通常都是假資訊！',
+    clue: '📡 來源：健康生活網 — 呢個網站唔係正規新聞機構，任何人都可以發布資訊'
   },
   {
     icon: '🌍',
@@ -464,7 +623,8 @@ const QUESTIONS = [
     isTrue: true,
     tag: '天文台公告',
     reason: '天文台是香港官方氣象機構，有相關公告。',
-    hint: '來自政府官方機構及知名媒體的新聞，通常較為可靠。'
+    hint: '來自政府官方機構及知名媒體的新聞，通常較為可靠。',
+    clue: '🏛️ 來源：香港天文台 — 政府官方氣象機構，公告可靠'
   },
   {
     icon: '🐶',
@@ -474,7 +634,8 @@ const QUESTIONS = [
     isTrue: false,
     tag: '動物謠言',
     reason: '影片是造假，疫苗是安全的，動物的異常行為另有原因。',
-    hint: '沒有權威來源證實的「震驚」影片，多數是假的！'
+    hint: '沒有權威來源證實的「震驚」影片，多數是假的！',
+    clue: '📡 來源：謎語樂園 — 呢個唔係正規資訊網站，內容未經查證'
   },
   {
     icon: '💰',
@@ -484,7 +645,8 @@ const QUESTIONS = [
     isTrue: true,
     tag: '官方公告',
     reason: '政府新聞網是官方資訊發布渠道，真實可信。',
-    hint: '政府網站或官方臉書專頁發布的消息，真實性較高。'
+    hint: '政府網站或官方臉書專頁發布的消息，真實性較高。',
+    clue: '🏛️ 來源：政府新聞網 — 香港政府官方資訊發布平台，可信度高'
   },
   {
     icon: '🔋',
@@ -494,8 +656,18 @@ const QUESTIONS = [
     isTrue: false,
     tag: '科技謠言',
     reason: '永動機違反熱力學定律，不可能存在！',
-    hint: '發現違反科學定律的「劃時代發明」聲明，要特別小心！'
+    hint: '發現違反科學定律的「劃時代發明」聲明，要特別小心！',
+    clue: '📡 來源：科技新知台 — 唔係正規科研機構，缺乏官方證實'
   }
+];
+
+// ─── 学阶 / 課題 Structure ──────────────────────────────
+const STAGES = [
+  { num: 1, desc: '小一至小二', topics: ['課題1','課題2','課題3','課題4','課題5','課題6','課題7','課題8'] },
+  { num: 2, desc: '小三至小四', topics: ['課題1','課題2','課題3','課題4','課題5','課題6','課題7','課題8'] },
+  { num: 3, desc: '小五', topics: ['課題1','課題2','課題3','課題4','課題5','課題6','課題7','課題8'] },
+  { num: 4, desc: '小六', topics: ['課題1','課題2','課題3','課題4','課題5','課題6','課題7','課題8'] },
+  { num: 5, desc: '初中', topics: ['課題1','課題2','課題3','課題4','課題5','課題6','課題7','課題8'] }
 ];
 
 // ─── State ─────────────────────────────────────────────
@@ -503,28 +675,104 @@ let currentIndex = 0;
 let scoreCorrect = 0;
 let scoreWrong = 0;
 let answered = false;
+let investigated = false;
+let selectedStage = null;
+let selectedTopic = null;
+let ttsQueue = [];
 
 // ─── DOM Elements ─────────────────────────────────────
-const startScreen   = document.getElementById('start-screen');
-const questionScreen = document.getElementById('question-screen');
+const startScreen    = document.getElementById('start-screen');
+const selectionScreen = document.getElementById('selection-screen');
+const questionScreen  = document.getElementById('question-screen');
 const completeScreen = document.getElementById('complete-screen');
-const newsCard       = document.getElementById('news-card');
-const btnGroup       = document.getElementById('btn-group');
-const btnNext        = document.getElementById('btn-next');
-const hintBox        = document.getElementById('hint-box');
-const progressFill   = document.getElementById('progress-fill');
-const progressText   = document.getElementById('progress-text');
-const feedbackFlash  = document.getElementById('feedback-flash');
-const flashText      = document.getElementById('flash-text');
+const newsCard        = document.getElementById('news-card');
+const btnGroup        = document.getElementById('btn-group');
+const btnNext         = document.getElementById('btn-next');
+const hintBox         = document.getElementById('hint-box');
+const progressFill    = document.getElementById('progress-fill');
+const progressText    = document.getElementById('progress-text');
+const feedbackFlash   = document.getElementById('feedback-flash');
+const flashText       = document.getElementById('flash-text');
 
-// ─── Speech ────────────────────────────────────────────
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'zh-Hant';
-  utter.rate = 0.95;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utter);
+// Hidden audio for MiniMax TTS
+let ttsAudio = document.createElement('audio');
+ttsAudio.id = 'tts-audio';
+ttsAudio.style.display = 'none';
+document.body.appendChild(ttsAudio);
+
+// ─── MiniMax TTS ────────────────────────────────────────
+async function speak(text) {
+  ttsQueue.push(text);
+  processTTSQueue();
+}
+
+let ttsProcessing = false;
+async function processTTSQueue() {
+  if (ttsProcessing || ttsQueue.length === 0) return;
+  ttsProcessing = true;
+  const text = ttsQueue.shift();
+  try {
+    const media = await text_to_speech(text);
+    if (media && media.startsWith('MEDIA:')) {
+      const path = media.slice(6);
+      ttsAudio.src = path;
+      ttsAudio.play().catch(() => {});
+      ttsAudio.onended = () => { ttsProcessing = false; processTTSQueue(); };
+    } else {
+      ttsProcessing = false;
+      processTTSQueue();
+    }
+  } catch (e) {
+    ttsProcessing = false;
+    processTTSQueue();
+  }
+}
+
+// ─── Render Stage/Topic Selection ──────────────────────
+function renderSelection() {
+  const stageGrid = document.getElementById('stage-grid');
+  stageGrid.innerHTML = '';
+  STAGES.forEach(stage => {
+    const btn = document.createElement('button');
+    btn.className = 'stage-btn';
+    btn.innerHTML = `<span class="stage-num">學階${stage.num}</span><span class="stage-desc">${stage.desc}</span>`;
+    btn.addEventListener('click', () => selectStage(stage.num));
+    stageGrid.appendChild(btn);
+  });
+}
+
+function selectStage(num) {
+  selectedStage = num;
+  selectedTopic = null;
+  document.getElementById('selection-title').textContent = `學階 ${num} — 請選擇課題`;
+  const stageGrid = document.getElementById('stage-grid');
+  stageGrid.querySelectorAll('.stage-btn').forEach(b => {
+    b.style.background = b.textContent.includes(num) ? 'var(--primary)' : '';
+    b.style.color = b.textContent.includes(num) ? '#fff' : '';
+  });
+  const topicGrid = document.getElementById('topic-grid');
+  topicGrid.style.display = 'grid';
+  topicGrid.innerHTML = '';
+  STAGES[num - 1].topics.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'topic-btn';
+    btn.innerHTML = `<span class="topic-num">${t}</span><span class="topic-tag">click</span>`;
+    btn.addEventListener('click', () => selectTopic(i + 1));
+    topicGrid.appendChild(btn);
+  });
+  document.getElementById('btn-confirm').classList.remove('show');
+}
+
+function selectTopic(num) {
+  selectedTopic = num;
+  document.querySelectorAll('.topic-btn').forEach((b, i) => {
+    b.style.borderColor = (i === num - 1) ? 'var(--primary)' : '#E8F0FE';
+    b.style.background = (i === num - 1) ? '#F0F4FF' : '';
+  });
+  document.getElementById('btn-confirm').classList.add('show');
+  // Save to localStorage
+  localStorage.setItem('discern_stage', selectedStage);
+  localStorage.setItem('discern_topic', selectedTopic);
 }
 
 // ─── Render Question ───────────────────────────────────
@@ -539,17 +787,18 @@ function renderQuestion() {
   document.getElementById('verdict-icon').textContent = q.isTrue ? '✅' : '❌';
   document.getElementById('verdict-tag').textContent = q.isTrue ? '✅ 真新聞' : '❌ 假資訊';
   document.getElementById('verdict-tag').className = 'tag ' + (q.isTrue ? 'tag-true' : 'tag-fake');
-  document.getElementById('verdict-text').textContent = q.isTrue
-    ? '這是真的新聞！'
-    : '這是假資訊！';
+  document.getElementById('verdict-text').textContent = q.isTrue ? '這是真的新聞！' : '這是假資訊！';
   document.getElementById('verdict-detail').textContent = q.reason;
   hintBox.textContent = q.hint;
   hintBox.style.display = 'none';
 
   // Reset card
   newsCard.classList.remove('flip');
-  btnGroup.style.display = 'flex';
+  btnGroup.style.display = 'none';
   btnNext.classList.remove('show');
+  investigated = false;
+  document.getElementById('btn-investigate').style.display = 'inline-block';
+  document.getElementById('clue-panel').classList.remove('show');
 
   // Progress
   progressFill.style.width = (currentIndex / QUESTIONS.length * 100) + '%';
@@ -557,6 +806,20 @@ function renderQuestion() {
 
   answered = false;
 }
+
+// ─── Handle Investigation (Clue-first) ────────────────
+document.getElementById('btn-investigate').addEventListener('click', () => {
+  if (investigated) return;
+  investigated = true;
+  const q = QUESTIONS[currentIndex];
+  document.getElementById('clue-title').textContent = '🔍 來源線索';
+  document.getElementById('clue-text').textContent = q.clue;
+  document.getElementById('clue-panel').classList.add('show');
+  document.getElementById('btn-investigate').style.display = 'none';
+  // Now show 真/假 buttons
+  btnGroup.style.display = 'flex';
+  speak('留意吓呢個資訊嘅來源，再做判斷！');
+});
 
 // ─── Handle Answer ────────────────────────────────────
 function handleAnswer(userChoice) {
@@ -639,12 +902,22 @@ function showComplete() {
 // ─── Event Listeners ───────────────────────────────────
 document.getElementById('btn-start').addEventListener('click', () => {
   startScreen.style.display = 'none';
+  selectionScreen.style.display = 'block';
+  renderSelection();
+});
+
+document.getElementById('btn-confirm').addEventListener('click', () => {
+  if (!selectedStage || !selectedTopic) return;
+  selectionScreen.style.display = 'none';
   questionScreen.style.display = 'block';
   currentIndex = 0;
   scoreCorrect = 0;
   scoreWrong = 0;
   document.getElementById('score-correct').textContent = '0';
   document.getElementById('score-wrong').textContent = '0';
+  // Update badge
+  document.querySelector('.badge').textContent = `📚 學階${selectedStage} · 課題${selectedTopic}`;
+  document.querySelector('.header h1').nextElementSibling.textContent = `課題${selectedTopic} — Learn to spot real vs. fake news!`;
   renderQuestion();
 });
 
@@ -666,6 +939,8 @@ document.getElementById('btn-restart').addEventListener('click', () => {
   startScreen.style.display = 'block';
   progressFill.style.width = '0%';
   progressText.textContent = '0 / 5';
+  selectedStage = null;
+  selectedTopic = null;
 });
 </script>
 </body>
