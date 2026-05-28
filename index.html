@@ -2,17 +2,41 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#4A90D9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>📰 分辨真假資訊 — 學階2 課題1</title>
   <style>
     :root {
       --primary: #4A90D9;
+      --primary-dark: #3A7BC8;
       --success: #52C41A;
       --danger: #FF4D4F;
       --bg: #F0F4FF;
       --card-bg: #FFFFFF;
       --text: #333;
+      --text-secondary: #666;
       --shadow: 0 4px 16px rgba(74,144,217,0.15);
+      --hint-bg: #FFF7E6;
+      --hint-border: #FA8C16;
+      --hint-text: #7A5011;
+      --clue-bg: linear-gradient(135deg, #FFF7E6 0%, #FFF3CC 100%);
+      --clue-border: #FA8C16;
+    }
+    :root.dark {
+      --bg: #1A1A2E;
+      --card-bg: #252540;
+      --text: #E8E8F0;
+      --text-secondary: #A0A0B8;
+      --shadow: 0 4px 20px rgba(0,0,0,0.4);
+      --hint-bg: #2D2D4A;
+      --hint-border: #FA8C16;
+      --hint-text: #FFD699;
+      --clue-bg: linear-gradient(135deg, #2D2D4A 0%, #3A3A5C 100%);
+      --clue-border: #FA8C16;
+      --primary: #5BA0E8;
+      --primary-dark: #4A90D9;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -36,7 +60,7 @@
     }
     .header p {
       font-size: 1rem;
-      color: #666;
+      color: var(--text-secondary);
     }
     .badge {
       display: inline-block;
@@ -47,6 +71,32 @@
       font-size: 0.85rem;
       margin-bottom: 8px;
     }
+    /* Dark Mode Toggle */
+    .dark-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+    .dark-toggle:hover {
+      background: var(--primary);
+      color: #fff;
+      transform: scale(1.08);
+    }
+    .dark-toggle:active { transform: scale(0.95); }
     /* Progress Bar */
     .progress-wrap {
       width: 100%;
@@ -55,7 +105,7 @@
     }
     .progress-label {
       font-size: 0.85rem;
-      color: #666;
+      color: var(--text-secondary);
       margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
@@ -151,7 +201,7 @@
     }
     .tag-true  { background: #E6F7D9; color: var(--success); }
     .tag-fake  { background: #FFF1F0; color: var(--danger); }
-    .tag-unknown { background: #FFF7E6; color: #FA8C16; }
+    .tag-unknown { background: var(--hint-bg); color: var(--hint-border); }
     .verdict-icon {
       font-size: 4rem;
       margin-bottom: 16px;
@@ -254,20 +304,20 @@
       gap: 24px;
       margin-top: 16px;
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-secondary);
     }
     .score-panel span { font-weight: 700; }
     .score-true span { color: var(--success); }
     .score-fake span { color: var(--danger); }
     /* Hint */
     .hint-box {
-      background: #FFF7E6;
-      border-left: 4px solid #FA8C16;
+      background: var(--hint-bg);
+      border-left: 4px solid var(--hint-border);
       border-radius: 8px;
       padding: 10px 14px;
       margin-top: 12px;
       font-size: 0.85rem;
-      color: #7A5011;
+      color: var(--hint-text);
       line-height: 1.5;
       max-width: 600px;
       display: none;
@@ -444,8 +494,8 @@
     .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(74,144,217,0.3); }
     /* Clue Panel */
     .clue-panel {
-      background: linear-gradient(135deg, #FFF7E6 0%, #FFF3CC 100%);
-      border: 2px solid #FA8C16;
+      background: var(--clue-bg);
+      border: 2px solid var(--clue-border);
       border-radius: 12px;
       padding: 14px 18px;
       margin: 12px 0;
@@ -487,6 +537,12 @@
   </style>
 </head>
 <body>
+
+<!-- Dark Mode Toggle -->
+<button class="dark-toggle" id="dark-toggle" aria-label="切換深色模式">🌙</button>
+
+<!-- TTS Audio -->
+<audio id="tts-audio" style="display:none"></audio>
 
 <!-- Header -->
 <div class="header">
@@ -693,12 +749,25 @@ const progressFill    = document.getElementById('progress-fill');
 const progressText    = document.getElementById('progress-text');
 const feedbackFlash   = document.getElementById('feedback-flash');
 const flashText       = document.getElementById('flash-text');
+const darkToggle      = document.getElementById('dark-toggle');
+const ttsAudio        = document.getElementById('tts-audio');
 
-// Hidden audio for MiniMax TTS
-let ttsAudio = document.createElement('audio');
-ttsAudio.id = 'tts-audio';
-ttsAudio.style.display = 'none';
-document.body.appendChild(ttsAudio);
+// ─── Dark Mode ─────────────────────────────────────────
+function applyDarkMode() {
+  const isDark = localStorage.getItem('discern-dark') === '1';
+  document.documentElement.classList.toggle('dark', isDark);
+  darkToggle.textContent = isDark ? '☀️' : '🌙';
+  darkToggle.setAttribute('aria-label', isDark ? '切換淺色模式' : '切換深色模式');
+}
+darkToggle.addEventListener('click', () => {
+  const isDark = localStorage.getItem('discern-dark') === '1';
+  localStorage.setItem('discern-dark', isDark ? '0' : '1');
+  applyDarkMode();
+});
+applyDarkMode();
+
+// Hidden audio for MiniMax TTS (already in HTML)
+let ttsAudio = document.getElementById('tts-audio');
 
 // ─── MiniMax TTS ────────────────────────────────────────
 async function speak(text) {
