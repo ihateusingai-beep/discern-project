@@ -112,7 +112,7 @@
     }
     .progress-bar {
       height: 12px;
-      background: #E8F0FE;
+      background: var(--card-bg);
       border-radius: 6px;
       overflow: hidden;
     }
@@ -217,10 +217,10 @@
     }
     .verdict-detail {
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-secondary);
       text-align: center;
       line-height: 1.6;
-      background: #F9FBFF;
+      background: var(--card-bg);
       padding: 12px 16px;
       border-radius: 12px;
       border-left: 4px solid var(--primary);
@@ -462,7 +462,7 @@
     }
     .topic-btn:hover:not(:disabled) {
       border-color: var(--primary);
-      background: #F0F4FF;
+      background: var(--card-bg);
       transform: translateY(-1px);
     }
     .topic-btn:disabled {
@@ -532,7 +532,7 @@
       margin-top: 8px;
     }
     .btn-investigate:hover {
-      background: #E67700;
+      background: var(--hint-border);
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(250,140,22,0.3);
     }
@@ -837,7 +837,7 @@ function selectTopic(num) {
   selectedTopic = num;
   document.querySelectorAll('.topic-btn').forEach((b, i) => {
     b.style.borderColor = (i === num - 1) ? 'var(--primary)' : '#E8F0FE';
-    b.style.background = (i === num - 1) ? '#F0F4FF' : '';
+    b.style.background = (i === num - 1) ? 'var(--card-bg)' : '';
   });
   document.getElementById('btn-confirm').classList.add('show');
   // Save to localStorage
