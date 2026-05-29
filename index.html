@@ -1007,10 +1007,28 @@ btnNext.addEventListener('click', () => {
 document.getElementById('btn-restart').addEventListener('click', () => {
   completeScreen.style.display = 'none';
   startScreen.style.display = 'block';
-  progressFill.style.width = '0%';
-  progressText.textContent = '0 / 5';
+  // Reset ALL game state
+  currentIndex = 0;
+  scoreCorrect = 0;
+  scoreWrong = 0;
+  answered = false;
+  investigated = false;
   selectedStage = null;
   selectedTopic = null;
+  progressFill.style.width = '0%';
+  progressText.textContent = '0 / 5';
+  document.getElementById('score-correct').textContent = '0';
+  document.getElementById('score-wrong').textContent = '0';
+  // Reset card
+  newsCard.classList.remove('flip');
+  btnGroup.style.display = 'none';
+  btnNext.classList.remove('show');
+  hintBox.style.display = 'none';
+  document.getElementById('btn-investigate').style.display = 'inline-block';
+  document.getElementById('clue-panel').classList.remove('show');
+  // Reset badge and header
+  document.querySelector('.badge').textContent = '📚 學階2 · 小四至小六';
+  document.querySelector('.header p').textContent = '課題1 — Learn to spot real vs. fake news!';
 });
 </script>
 </body>
