@@ -154,9 +154,13 @@
     .card-front, .card-back {
       backface-visibility: hidden;
     }
+    .card-front { opacity: 1; }
+    .card-back  {
+      opacity: 0;
+      background: var(--card-bg);
+    }
     .card-back {
       transform: rotateY(180deg);
-    }
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       padding: 28px 24px;
@@ -167,8 +171,6 @@
       border-radius: 20px;
       transition: opacity 0.3s;
     }
-    .card-front { opacity: 1; }
-    .card-back  { opacity: 0; background: var(--card-bg); }
     .news-icon {
       font-size: 3.5rem;
       margin-bottom: 16px;
@@ -375,7 +377,7 @@
       box-shadow: 0 8px 24px rgba(74,144,217,0.3);
     }
     .learning-goals {
-      background: #F0F4FF;
+      background: var(--card-bg);
       border-radius: 12px;
       padding: 16px 20px;
       text-align: left;
@@ -599,7 +601,7 @@
           <div class="tag tag-unknown" id="tag-question">❓ 等待你判斷</div>
           <div class="news-headline" id="news-headline"></div>
           <div class="news-content" id="news-content"></div>
-          <button class="btn-investigate" id="btn-investigate">🔍 先搵線索</button>
+          <button class="btn-investigate" id="btn-investigate" aria-label="先搵線索">🔍 先搵線索</button>
           <div class="clue-panel" id="clue-panel">
             <div class="clue-title" id="clue-title"></div>
             <div class="clue-text" id="clue-text"></div>
@@ -766,11 +768,10 @@ darkToggle.addEventListener('click', () => {
 });
 applyDarkMode();
 
-// Hidden audio for MiniMax TTS (already in HTML)
-let ttsAudio = document.getElementById('tts-audio');
-
 // ─── MiniMax TTS ────────────────────────────────────────
 async function speak(text) {
+  // TTS runs server-side; gracefully skip if unavailable
+  if (typeof text_to_speech !== 'function') return;
   ttsQueue.push(text);
   processTTSQueue();
 }
