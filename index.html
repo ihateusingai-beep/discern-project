@@ -548,7 +548,7 @@
 
 <!-- Header -->
 <div class="header">
-  <div class="badge">📚 學階2 · 小四至小六</div>
+  <div class="badge" id="badge">📚 請先選擇學階及課題</div>
   <h1>分辨真假資訊</h1>
   <p>課題1 — Learn to spot real vs. fake news!</p>
 </div>
@@ -716,6 +716,105 @@ const QUESTIONS = [
     reason: '永動機違反熱力學定律，不可能存在！',
     hint: '發現違反科學定律的「劃時代發明」聲明，要特別小心！',
     clue: '📡 來源：科技新知台 — 唔係正規科研機構，缺乏官方證實'
+  },
+  {
+    icon: '🏥',
+    source: '衛生防護中心',
+    headline: '衞生防護中心提醒：猴痘病毒可在泳池傳播',
+    content: '近日有市民在社交平台分享，聲稱游泳池管理部門通告指猴痘病毒可通過池水傳播。',
+    isTrue: false,
+    tag: '健康謠言',
+    reason: '猴痘主要透過直接接觸患者皮疹、體液或飛沫傳播，泳池水並非主要傳播途徑。',
+    hint: '聲稱官方機構發出但未見於政府新聞公報的消息，要小心核查！',
+    clue: '🏛️ 來源：衛生防護中心 — 官方機構，但公報從未提及泳池傳播'
+  },
+  {
+    icon: '📱',
+    source: 'TVB新聞',
+    headline: '天文台宣佈：明日凌晨一時懸掛三號強風信號',
+    content: '香港天文台表示，預計明日凌晨一時起，香港風力將達到強風程度，屆時將懸掛三號強風信號。',
+    isTrue: true,
+    tag: '天文台公告',
+    reason: '天文台是香港官方氣象機構，公告可於天文台網站及新聞處核實。',
+    hint: '天文台消息可在 www.hko.gov.hk 直接核實！',
+    clue: '🏛️ 來源：TVB新聞 — 持牌電視台，轉載天文台官方公告'
+  },
+  {
+    icon: '🎓',
+    source: '教育局公告',
+    headline: '教育局公佈：下學年全港學校恢復全日制面授',
+    content: '教育局今日舉行記者會，宣佈由下學年開始，全港中小學將全面恢復全日制面授課堂。',
+    isTrue: true,
+    tag: '官方公告',
+    reason: '教育局官方記者會公告，可於政府新聞公報及教育局網站查證。',
+    hint: '教育局官網 news.gov.hk 是可靠的消息來源！',
+    clue: '🏛️ 來源：教育局公告 — 政府官方渠道，可信度高'
+  },
+  {
+    icon: '🔬',
+    source: '謎語樂園',
+    headline: '震驚！最新研究：自來水含有金星隕石碎片！',
+    content: '網上短片聲稱科學家在自來水樣本中發現罕見的外星礦物質，來自金星隕石。',
+    isTrue: false,
+    tag: '科學謠言',
+    reason: '自來水經過嚴格過濾程序，隕石碎片不可能進入食水系統，且從未有任何官方科研機構證實此說法。',
+    hint: '違反基本科學常识的「震驚發現」多數是假的！',
+    clue: '📡 來源：謎語樂園 — 呢個唔係正規科普網站，沒有任何研究論文支持'
+  },
+  {
+    icon: '🌊',
+    source: '香港天文台',
+    headline: '天文台发出黑色暴雨警告：請市民留在室內',
+    content: '香港天文台於下午三時正發出黑色暴雨警告，表示香港廣泛地區已錄得或預計每小時雨量超過70毫米。',
+    isTrue: true,
+    tag: '天文台公告',
+    reason: '天文台暴雨警告系統是真實的政府公告，可於天文台官方網站即時查證。',
+    hint: '天文台所有警告都可在 hko.gov.hk 實時核實！',
+    clue: '🏛️ 來源：香港天文台官方網站 — 政府官方渠道，即時更新'
+  },
+  {
+    icon: '💊',
+    source: '健康生活網',
+    headline: '專家呼籲：維他命C可以預防和治療新冠肺炎！',
+    content: '有自稱醫學專家在社交媒體發文，指每日服用大量維他命C可以100%預防及治療新冠肺炎。',
+    isTrue: false,
+    tag: '健康謠言',
+    reason: '世衞及各大醫學機構均無证实大劑量維他命C能預防或治療新冠肺炎，相關說法沒有科學根據。',
+    hint: '任何聲稱能「100%預防」傳染病的單一物質，要特別警惕！',
+    clue: '📡 來源：健康生活網 — 唔係正規醫學機構，任何人都可以自稱專家'
+  },
+  {
+    icon: '🏛️',
+    source: '政府新聞網',
+    headline: '政府宣佈：長者生活津貼調升至每月四千一百元',
+    content: '勞工及福利局宣佈，由下月起，長者生活津貼將由現時三千八百元提升至四千一百元，約二十萬長者受惠。',
+    isTrue: true,
+    tag: '官方公告',
+    reason: '政府新聞網 news.gov.hk 發布的官方公告，可直接查證。',
+    hint: ' gov.hk 結尾的網站是香港政府官方網站！',
+    clue: '🏛️ 來源：政府新聞網 — news.gov.hk 是政府官方消息發布平台'
+  },
+  {
+    icon: '🍖',
+    source: '謎語樂園',
+    headline: '震驚發現：街頭鹹魚含有人類DNA，唔食得！',
+    content: '網上流傳一段短片，聲稱有實驗室檢測發現街頭售卖的鹹魚樣本含有大量人類DNA，呼籲市民不要食用。',
+    isTrue: false,
+    tag: '食品安全謠言',
+    reason: '影片已被各大事實核查機構闢謠，所謂「實驗室檢測」毫無根據，屬造假內容。',
+    hint: '沒有具體實驗室名稱、沒有研究論文的「震驚發現」要多加懷疑！',
+    clue: '📡 來源：謎語樂園 — 唔係正規媒體，沒有提供任何可查證的資料'
+  },
+  {
+    icon: '📢',
+    source: '運輸署公告',
+    headline: '運輸署提醒：明日凌晨起港九多處道路封閉',
+    content: '運輸署宣佈，因應大型活動，明日凌晨零時起至下午六時，中環、灣仔及銅鑼灣一帶多處道路將臨時封閉。',
+    isTrue: true,
+    tag: '官方公告',
+    reason: '運輸署是政府部門，公告可於政府新聞公報及運輸署網站查證。',
+    hint: '政府部門公告可信，但記得留意公告日期及具體安排！',
+    clue: '🏛️ 來源：運輸署 — 政府官方部門，公告時間、地點、範圍清晰明確'
   }
 ];
 
@@ -1001,7 +1100,7 @@ document.getElementById('btn-confirm').addEventListener('click', () => {
   document.getElementById('score-correct').textContent = '0';
   document.getElementById('score-wrong').textContent = '0';
   // Update badge
-  document.querySelector('.badge').textContent = `📚 學階${selectedStage} · 課題${selectedTopic}`;
+  document.getElementById('badge').textContent = `📚 學階${selectedStage} · 課題${selectedTopic}`;
   document.querySelector('.header h1').nextElementSibling.textContent = `課題${selectedTopic} — Learn to spot real vs. fake news!`;
   renderQuestion();
 });
@@ -1042,7 +1141,7 @@ document.getElementById('btn-restart').addEventListener('click', () => {
   document.getElementById('btn-investigate').style.display = 'inline-block';
   document.getElementById('clue-panel').classList.remove('show');
   // Reset badge and header
-  document.querySelector('.badge').textContent = '📚 學階2 · 小四至小六';
+  document.getElementById('badge').textContent = '📚 學階2 · 小四至小六';
   document.querySelector('.header p').textContent = '課題1 — Learn to spot real vs. fake news!';
 });
 </script>
