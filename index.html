@@ -768,9 +768,19 @@ darkToggle.addEventListener('click', () => {
 });
 applyDarkMode();
 
-// ─── MiniMax TTS ────────────────────────────────────────
-async function speak(text) {
-  // TTS runs server-side; gracefully skip if unavailable
+// ─── Browser TTS (Web Speech API) ─────────────────────
+function browserSpeak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'zh-HK';
+  utt.rate = 1.0;
+  utt.pitch = 1.0;
+  window.speechSynthesis.speak(utt);
+}
+
+// ─── MiniMax TTS (server-side fallback) ────────────────
+async function minimaxSpeak(text) {
   if (typeof text_to_speech !== 'function') return;
   ttsQueue.push(text);
   processTTSQueue();
@@ -796,6 +806,11 @@ async function processTTSQueue() {
     ttsProcessing = false;
     processTTSQueue();
   }
+}
+
+// ─── Unified speak() — Browser TTS first, MiniMax fallback
+function speak(text) {
+  browserSpeak(text);
 }
 
 // ─── Render Stage/Topic Selection ──────────────────────
